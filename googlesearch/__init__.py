@@ -34,6 +34,8 @@ class SearchResult:
 
 
 def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_interval=0):
+    escaped_term = term.replace(":", "%3A")
+    escaped_term = escaped_term.replace(" ", "+")
 
     # Proxy
     proxies = None
@@ -47,7 +49,7 @@ def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_in
     start = 0
     while start < num_results:
         # Send request
-        resp = _req(term, num_results - start, lang, start, proxies)
+        resp = _req(escaped_term, num_results - start, lang, start, proxies)
 
         # Parse
         soup = BeautifulSoup(resp.text, "html.parser")
