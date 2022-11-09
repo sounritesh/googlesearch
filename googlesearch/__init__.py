@@ -1,16 +1,14 @@
 from bs4 import BeautifulSoup
 from requests import get
-from time import sleep
-from .user_agents import get_useragent
+
+usr_agent = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
 
 
 def _req(term, results, lang, start, proxies):
-    print(f"TERM: {term}")
     resp = get(
         url="https://www.google.com/search",
-        headers={
-            "User-Agent": get_useragent()
-        },
+        headers=usr_agent,
         params=dict(
             q=term,
             num=results + 2,  # Prevents multiple requests
@@ -19,7 +17,6 @@ def _req(term, results, lang, start, proxies):
         ),
         proxies=proxies,
     )
-    print(f"RESP: {resp.text}")
     resp.raise_for_status()
     return resp
 
@@ -34,14 +31,14 @@ class SearchResult:
         return f"SearchResult(url={self.url}, title={self.title}, description={self.description})"
 
 
-def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_interval=0):
-    escaped_term = term.replace(":", r"%3A")
-    escaped_term = escaped_term.replace(" ", "+")
+def search(term, num_results=10, lang="en", proxy=None, advanced=False):
+    # escaped_term = term.replace(' ', '+')
+    escaped_term = term
 
     # Proxy
     proxies = None
     if proxy:
-        if proxy.startswith("https"):
+        if proxy[:5] == "https":
             proxies = {"https": proxy}
         else:
             proxies = {"http": proxy}
@@ -50,29 +47,26 @@ def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_in
     start = 0
     while start < num_results:
         # Send request
-        resp = _req(escaped_term, num_results - start, lang, start, proxies)
+        resp = _req(escaped_term, num_results-start, lang, start, proxies)
 
         # Parse
-        soup = BeautifulSoup(resp.text, "html.parser")
-        result_block = soup.find_all("div", attrs={"class": "g"})
-
-        print(f"RESULT BLOCK: {result_block}")
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        result_block = soup.find_all('div', attrs={'class': 'g'})
 
         if (not result_block):
             break
 
         for result in result_block:
             # Find link, title, description
-            link = result.find("a", href=True)
-            title = result.find("h3")
+            link = result.find('a', href=True)
+            title = result.find('h3')
             description_box = result.find(
-                "div", {"style": "-webkit-line-clamp:2"})
+                'div', {'style': '-webkit-line-clamp:2'})
             if description_box:
-                description = description_box.find("span")
+                description = description_box.find('span')
                 if link and title and description:
                     start += 1
                     if advanced:
-                        yield SearchResult(link["href"], title.text, description.text)
+                        yield SearchResult(link['href'], title.text, description.text)
                     else:
-                        yield link["href"]
-        sleep(sleep_interval)
+                        yield link['href']
