@@ -34,7 +34,7 @@ class SearchResult:
 
 
 def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_interval=0):
-    escaped_term = term.replace(":", "%3A")
+    escaped_term = term.replace(":", r"%3A")
     escaped_term = escaped_term.replace(" ", "+")
 
     # Proxy
