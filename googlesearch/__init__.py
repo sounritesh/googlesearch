@@ -5,6 +5,7 @@ from .user_agents import get_useragent
 
 
 def _req(term, results, lang, start, proxies):
+    print(f"TERM: {term}")
     resp = get(
         url="https://www.google.com/search",
         headers={
@@ -33,7 +34,6 @@ class SearchResult:
 
 
 def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_interval=0):
-    escaped_term = term.replace(" ", "+")
 
     # Proxy
     proxies = None
@@ -47,7 +47,7 @@ def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_in
     start = 0
     while start < num_results:
         # Send request
-        resp = _req(escaped_term, num_results - start, lang, start, proxies)
+        resp = _req(term, num_results - start, lang, start, proxies)
 
         # Parse
         soup = BeautifulSoup(resp.text, "html.parser")
@@ -56,7 +56,8 @@ def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_in
             # Find link, title, description
             link = result.find("a", href=True)
             title = result.find("h3")
-            description_box = result.find("div", {"style": "-webkit-line-clamp:2"})
+            description_box = result.find(
+                "div", {"style": "-webkit-line-clamp:2"})
             if description_box:
                 description = description_box.find("span")
                 if link and title and description:
