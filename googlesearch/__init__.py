@@ -5,8 +5,8 @@ usr_agent = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
 
 
-def _req(term, results, lang, start, proxies):
-    resp = get(
+def _req(term, session, results, lang, start, proxies):
+    resp = session.get(
         url="https://www.google.com/search",
         headers=usr_agent,
         params=dict(
@@ -31,7 +31,7 @@ class SearchResult:
         return f"SearchResult(url={self.url}, title={self.title}, description={self.description})"
 
 
-def search(term, num_results=10, lang="en", proxy=None, advanced=False):
+def search(term, session, num_results=10, lang="en", proxy=None, advanced=False):
     # escaped_term = term.replace(' ', '+')
     escaped_term = term
 
@@ -47,7 +47,8 @@ def search(term, num_results=10, lang="en", proxy=None, advanced=False):
     start = 0
     while start < num_results:
         # Send request
-        resp = _req(escaped_term, num_results-start, lang, start, proxies)
+        resp = _req(escaped_term, session, num_results -
+                    start, lang, start, proxies)
 
         # Parse
         soup = BeautifulSoup(resp.text, 'html.parser')
