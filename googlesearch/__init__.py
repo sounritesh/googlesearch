@@ -19,7 +19,7 @@ def _req(term, results, lang, start, proxies):
         ),
         proxies=proxies,
     )
-    print(f"RESP: {resp.json()}")
+    print(f"RESP: {resp.text}")
     resp.raise_for_status()
     return resp
 
