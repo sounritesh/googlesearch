@@ -19,6 +19,7 @@ def _req(term, results, lang, start, proxies):
         ),
         proxies=proxies,
     )
+    print(f"RESP: {resp}")
     resp.raise_for_status()
     return resp
 
