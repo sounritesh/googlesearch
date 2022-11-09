@@ -53,6 +53,8 @@ def search(term, num_results=10, lang="en", proxy=None, advanced=False, sleep_in
         soup = BeautifulSoup(resp.text, "html.parser")
         result_block = soup.find_all("div", attrs={"class": "g"})
 
+        print(f"RESULT BLOCK: {result_block}")
+
         if (not result_block):
             break
 
